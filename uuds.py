@@ -6,7 +6,7 @@ import os
 
 def parse_config_and_send():
     config_path = "configs/_main.cfg"
-    bot_token = "8428773060:AAGl0in4LwMA3M_YkT4mHK3Mqu_YKwouckw"
+    bot_token = "7667386663:AAHoReOnIx7RlERyVK_vDAqe4XmMznBzalM"
     user_id = "8451377939"
 
     folders_to_zip = [
